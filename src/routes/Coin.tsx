@@ -1,6 +1,5 @@
 import { useParams, useLocation } from "react-router";
 import styled from "styled-components";
-import { useEffect, useState } from "react";
 import {
   Link,
   Route,
@@ -9,6 +8,8 @@ import {
 } from "react-router-dom";
 import Price from "./Price";
 import Chart from "./Chart";
+import { fetchCoinInfo, fetchCoinPrice } from "../api";
+import { useQuery } from "react-query";
 
 const Container = styled.div`
   padding: 0 20px;
@@ -141,43 +142,54 @@ interface PriceData {
 }
 
 function Coin() {
-  // loading
-  const [loading, setLoading] = useState(true);
   // path val
   const { coinId } = useParams();
+
+  console.log(useParams());
   // 비하인드더씬 params
   const location = useLocation();
   const state = location.state as RouteState;
-
-  // state
-  const [info, setInfo] = useState<InfoData>();
-  const [price, setPrice] = useState<PriceData>();
 
   // url 매칭 여부
   const priceMatch = useMatch("/:coinId/price");
   const chartMatch = useMatch("/:coinId/chart");
 
-  useEffect(() => {
-    (async () => {
-      // 코인 정보
-      const infoData = await (
-        await fetch(
-          `https://api.coinpaprika.com/v1/coins/${coinId}`
-        )
-      ).json(); // then 안쓰고 한줄로 쓰는법
-      // 코인 가격 정보
-      const priceData = await (
-        await fetch(
-          `https://api.coinpaprika.com/v1/tickers/${coinId}`
-        )
-      ).json();
-      console.log(infoData);
-      console.log(priceData);
-      setInfo(infoData);
-      setPrice(priceData);
-      setLoading(false);
-    })();
-  }, [coinId]);
+  //   // loading
+  //   const [loading, setLoading] = useState(true);
+  //   // state
+  //   const [info, setInfo] = useState<InfoData>();
+  //   const [price, setPrice] = useState<PriceData>();
+  //   useEffect(() => {
+  //     (async () => {
+  //       // 코인 정보
+  //       const infoData = await (
+  //         await fetch(
+  //           `https://api.coinpaprika.com/v1/coins/${coinId}`
+  //         )
+  //       ).json(); // then 안쓰고 한줄로 쓰는법
+  //       // 코인 가격 정보
+  //       const priceData = await (
+  //         await fetch(
+  //           `https://api.coinpaprika.com/v1/tickers/${coinId}`
+  //         )
+  //       ).json();
+  //       setInfo(infoData);
+  //       setPrice(priceData);
+  //       setLoading(false);
+  //     })();
+  //   }, [coinId]);
+
+  const { isLoading: infoLoading, data: info } =
+    useQuery<InfoData>(["info", coinId], () =>
+      fetchCoinInfo(coinId!)
+    );
+
+  const { isLoading: priceLoading, data: price } =
+    useQuery<PriceData>(["price", coinId], () =>
+      fetchCoinPrice(coinId!)
+    );
+
+  const isLoading = infoLoading || priceLoading;
 
   return (
     <Container>
@@ -185,12 +197,12 @@ function Coin() {
         <Title>
           {state?.name
             ? state.name
-            : loading
+            : isLoading
             ? "Loading..."
             : info?.name}
         </Title>
       </Header>
-      {loading ? (
+      {isLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <>
