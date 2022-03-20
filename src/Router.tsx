@@ -8,7 +8,7 @@ import Coins from "./routes/Coins";
 
 function Router() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={process.env.PUBLIC_URL}>
       <Routes>
         {/* 중첩라우터 사용할 경우 * 추가 해야함 */}
         <Route path="/:coinId/*" element={<Coin />} />

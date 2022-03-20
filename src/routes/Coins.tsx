@@ -1,3 +1,4 @@
+import { Helmet } from "react-helmet";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
 import styled from "styled-components";
@@ -87,6 +88,10 @@ function Coins() {
 
   return (
     <Container>
+      {/* html head로 가는 다이렉트 링크다. 파비콘 등등 head에서 변경할수 있는걸 설정할수있다. */}
+      <Helmet>
+        <title>COINS</title>
+      </Helmet>
       <Header>
         <Title>COINS</Title>
       </Header>

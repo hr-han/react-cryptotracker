@@ -10,6 +10,7 @@ import Price from "./Price";
 import Chart from "./Chart";
 import { fetchCoinInfo, fetchCoinPrice } from "../api";
 import { useQuery } from "react-query";
+import { Helmet } from "react-helmet";
 
 const Container = styled.div`
   padding: 0 20px;
@@ -20,12 +21,21 @@ const Container = styled.div`
 const Header = styled.header`
   height: 10vh;
   display: flex;
-  justify-content: center;
+  /* justify-content: center; */
   align-items: center;
-  padding: 50px;
+  padding: 50px 0;
+  position: relative;
+`;
+
+const BackBtn = styled.span`
+  font-size: 30px;
+  position: absolute;
 `;
 
 const Title = styled.h1`
+  width: 100%;
+  display: flex;
+  justify-content: center;
   color: ${(props) => props.theme.accentColor};
   font-size: 48px;
 `;
@@ -145,7 +155,6 @@ function Coin() {
   // path val
   const { coinId } = useParams();
 
-  console.log(useParams());
   // 비하인드더씬 params
   const location = useLocation();
   const state = location.state as RouteState;
@@ -185,15 +194,29 @@ function Coin() {
     );
 
   const { isLoading: priceLoading, data: price } =
-    useQuery<PriceData>(["price", coinId], () =>
-      fetchCoinPrice(coinId!)
+    useQuery<PriceData>(
+      ["price", coinId],
+      () => fetchCoinPrice(coinId!), // coinId 값은 무조건있다!
+      { refetchInterval: 5000 } // 5초 마다 재취득
     );
 
   const isLoading = infoLoading || priceLoading;
 
   return (
     <Container>
+      <Helmet>
+        <title>
+          {state?.name
+            ? state.name
+            : isLoading
+            ? "Loading..."
+            : info?.name}
+        </title>
+      </Helmet>
       <Header>
+        <BackBtn>
+          <Link to={`/`}>&larr;</Link>
+        </BackBtn>
         <Title>
           {state?.name
             ? state.name
@@ -216,9 +239,9 @@ function Coin() {
               <span>${info?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
-              <span>Open Source:</span>
+              <span>Price:</span>
               <span>
-                {info?.open_source ? "Yes" : "No"}
+                $ {price?.quotes.USD.price.toFixed(3)}
               </span>
             </OverviewItem>
           </Overview>
@@ -243,8 +266,14 @@ function Coin() {
           </Tabs>
           <Routes>
             {/* ~/:coinId/price 와 같음*/}
-            <Route path="price" element={<Price />} />
-            <Route path="chart" element={<Chart />} />
+            <Route
+              path="price"
+              element={<Price {...price?.quotes.USD!} />}
+            />
+            <Route
+              path="chart"
+              element={<Chart coinId={coinId!} />}
+            />
           </Routes>
         </>
       )}
