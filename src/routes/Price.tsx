@@ -24,9 +24,9 @@ const Box = styled.span`
   padding: 10px;
   margin-top: 10px;
   font-weight: 600;
+  color: #30336b;
   /* title */
   &:first-child {
-    color: #30336b;
     margin-bottom: 10px;
     margin-top: 0px;
   }

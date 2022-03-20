@@ -49,7 +49,7 @@ const Loader = styled.span`
 const Overview = styled.div`
   display: flex;
   justify-content: space-between;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${(props) => props.theme.textColor};
   padding: 10px 20px;
   border-radius: 10px;
 `;
@@ -57,6 +57,7 @@ const OverviewItem = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: ${(props) => props.theme.bgColor};
   span:first-child {
     font-size: 10px;
     font-weight: 400;
@@ -80,13 +81,13 @@ const Tab = styled.span<{ isActive: boolean }>`
   text-transform: uppercase;
   font-size: 12px;
   font-weight: 400;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: ${(props) => props.theme.textColor};
   padding: 7px 0px;
   border-radius: 10px;
   color: ${(props) =>
     props.isActive
       ? props.theme.accentColor
-      : props.theme.textColor};
+      : props.theme.bgColor};
   a {
     display: block;
   }
