@@ -1,9 +1,24 @@
+import { ICoin } from "./interface";
+
 const BASE_URL = "https://api.coinpaprika.com/v1";
 
 export function fetchCoins() {
-  return fetch(`${BASE_URL}/coins`).then((res) =>
-    res.json()
-  );
+  return fetch(`${BASE_URL}/coins`)
+    .then((res) => res.json())
+    .then((list) =>
+      list
+        .filter((coin: ICoin) => "coin" === coin.type)
+        .slice(0, 100)
+        .map((coin: ICoin) => {
+          return {
+            ...coin,
+            //img: `https://api.coinicons.net/icon/${coin.symbol.toLowerCase()}/32x32`,
+            //img: `https://cryptoicon-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`
+            // 간단하게 이미지 끌어다 쓸곳이 없네...
+            img: `https://static.upbit.com/logos/${coin.symbol.toUpperCase()}.png`,
+          };
+        })
+    );
 }
 
 export function fetchCoinInfo(coinId: string) {

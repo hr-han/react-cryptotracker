@@ -1,10 +1,14 @@
 import { Helmet } from "react-helmet";
 import { useQuery } from "react-query";
 import { Link } from "react-router-dom";
-import { useSetRecoilState } from "recoil";
+import { useRecoilState } from "recoil";
 import styled from "styled-components";
 import { fetchCoins } from "../api";
 import { isDarkAtom } from "../atoms";
+
+import { IoMdSunny } from "react-icons/io";
+import { FaMoon } from "react-icons/fa";
+import { ICoin } from "../interface";
 
 const Container = styled.div`
   padding: 0 20px;
@@ -18,6 +22,7 @@ const Header = styled.header`
   justify-content: center;
   align-items: center;
   padding: 50px;
+  position: relative;
 `;
 
 const Title = styled.h1`
@@ -57,15 +62,29 @@ const Img = styled.img`
   margin-right: 10px;
 `;
 
-interface ICoin {
-  id: string;
-  name: string;
-  symbol: string;
-  rank: number;
-  is_new: boolean;
-  is_active: boolean;
-  type: string;
-}
+const Toggle = styled.div`
+  width: 35px;
+  height: 35px;
+  margin: 10px;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  background-color: ${(props) => props.theme.textColor};
+
+  border: 2px solid ${(props) => props.theme.accentColor};
+  color: ${(props) => props.theme.bgColor};
+  border-radius: 15px;
+  font-size: 2rem;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+
+  &:hover {
+    background-color: ${(props) => props.theme.bgColor};
+    color: ${(props) => props.theme.accentColor};
+  }
+`;
 
 function Coins() {
   // // loading
@@ -84,7 +103,7 @@ function Coins() {
   // }, []);
 
   // 뷰모드 제어
-  const setIsDark = useSetRecoilState(isDarkAtom);
+  const [isDark, setIsDark] = useRecoilState(isDarkAtom);
   const toggleDarkMode = () => setIsDark((prev) => !prev);
 
   const { isLoading, data } = useQuery<ICoin[]>(
@@ -100,23 +119,21 @@ function Coins() {
       </Helmet>
       <Header>
         <Title>COINS</Title>
-        <button onClick={toggleDarkMode}>
-          toggle mode
-        </button>
+        <Toggle onClick={toggleDarkMode}>
+          {isDark ? <FaMoon /> : <IoMdSunny />}
+        </Toggle>
       </Header>
       {isLoading ? (
         <Loader>Loading....</Loader>
       ) : (
         <CoinList>
-          {data?.slice(0, 100).map((coin) => (
+          {data?.map((coin) => (
             <Coin key={coin.id}>
               <Link
                 to={`/${coin.id}`}
                 state={{ name: coin.name }}
               >
-                <Img
-                  src={`https://cryptoicon-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`}
-                />
+                <Img src={coin.img} alt={coin.symbol} />
                 {coin.name} &rarr;
               </Link>
             </Coin>
